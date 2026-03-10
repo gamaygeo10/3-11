@@ -1,0 +1,48 @@
+<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="game-controller-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Brain Games</h1>
+          <p>Fun cognitive exercises to boost your memory</p>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="main-actions">
+      <div class="action-card name-memory-action" routerLink="/name-that-memory">
+        <div class="card-glow"></div>
+        <div class="action-icon">
+          <ion-icon name="bulb-outline"></ion-icon>
+        </div>
+        <div class="action-text">
+          <h2>Name That Memory</h2>
+          <p>Identify people and places</p>
+        </div>
+      </div>
+
+      <div class="action-card category-action" routerLink="/category-match">
+        <div class="card-glow"></div>
+        <div class="action-icon">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+        </div>
+        <div class="action-text">
+          <h2>Category Match</h2>
+          <p>Sort items by category</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

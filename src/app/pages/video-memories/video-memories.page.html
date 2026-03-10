@@ -1,0 +1,161 @@
+<ion-content class="lavender-content" [fullscreen]="true" id="video-memories-page">
+  
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="videocam-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Video Memories</h1>
+          <p>Your magical memory companion</p>
+        </div>
+        <ion-button class="add-btn" fill="clear" *ngIf="!isPatientMode" (click)="openAddMenu()" aria-label="Add Video">
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    
+    <div *ngIf="videos.length === 0" class="empty-state">
+      <ion-icon class="empty-icon" name="videocam-outline"></ion-icon>
+      <h2 class="empty-title">No Videos yet</h2>
+      <p class="empty-subtitle">Tap the + to add a memory.</p>
+      <ion-button class="empty-btn" *ngIf="!isPatientMode" (click)="openAddMenu()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add Video
+      </ion-button>
+    </div>
+
+    
+    <div class="gallery-container" *ngIf="videos.length > 0">
+      <div class="gallery-grid">
+        <div
+          class="gallery-item"
+          *ngFor="let video of videos; let i = index"
+          (click)="openDetailView(video, i)">
+          
+          <div class="video-thumbnail">
+            <video
+              class="video-preview"
+              [src]="video.src"
+              [poster]="video.poster || placeholderDataUrl"
+              muted
+              autoplay
+              playsinline
+              loop
+              preload="metadata"
+              (error)="onThumbVideoError($event, video)">
+            </video>
+            
+            <div class="play-overlay">
+              <ion-icon name="play"></ion-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <ion-modal [isOpen]="showDetailModal" (didDismiss)="closeDetailView()" class="detail-modal">
+    <ng-template>
+      <div class="modal-content">
+        
+        <ion-button class="close-btn" fill="clear" (click)="closeDetailView()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+        
+        
+        <div class="video-player-container" *ngIf="selectedVideo">
+          <video
+            #detailVideoRef
+            class="detail-video"
+            [src]="selectedVideo.src"
+            [poster]="selectedVideo.poster || ''"
+            preload="metadata"
+            (loadedmetadata)="onDetailVideoLoaded()"
+            (timeupdate)="onDetailVideoTimeUpdate()"
+            (click)="toggleDetailVideoPlay()">
+          </video>
+          
+          
+          <div class="play-overlay" *ngIf="!isDetailVideoPlaying" (click)="toggleDetailVideoPlay()">
+            <ion-icon name="play"></ion-icon>
+          </div>
+        </div>
+        
+        
+        <div class="video-details" *ngIf="selectedVideo">
+          <h2 class="video-title">{{ selectedVideo.label || 'Video Memory' }}</h2>
+          <p class="video-date">{{ selectedVideo.createdAt | date:'MMM d, y • h:mm a' }}</p>
+        </div>
+        
+        
+        <div class="navigation-controls" *ngIf="videos.length > 1">
+          <ion-button 
+            class="nav-btn prev-btn" 
+            fill="clear" 
+            (click)="goToPreviousVideo()"
+            [disabled]="selectedVideoIndex <= 0">
+            <ion-icon name="chevron-back"></ion-icon>
+          </ion-button>
+          
+          <div class="video-counter">
+            {{ selectedVideoIndex + 1 }} of {{ videos.length }}
+          </div>
+          
+          <ion-button 
+            class="nav-btn next-btn" 
+            fill="clear" 
+            (click)="goToNextVideo()"
+            [disabled]="selectedVideoIndex >= videos.length - 1">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </ion-button>
+        </div>
+        
+        
+        <div class="action-buttons">
+          <ion-button 
+            class="action-btn edit-btn" 
+            fill="outline" 
+            (click)="editVideo(selectedVideo)">
+            <ion-icon name="create" slot="start"></ion-icon>
+            Edit
+          </ion-button>
+          
+          <ion-button 
+            class="action-btn delete-btn" 
+            fill="solid" 
+            color="danger"
+            (click)="selectedVideo && deleteVideoFromDetail(selectedVideo)">
+            <ion-icon name="trash" slot="start"></ion-icon>
+            Delete
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  
+  <input
+    type="file"
+    accept="video/*"
+    capture="environment"
+    class="hidden-file"
+    #cameraInput
+    (change)="onFilePicked($event, 'camera')" />
+
+  <input
+    type="file"
+    accept="video/*"
+    class="hidden-file"
+    #galleryInput
+    (change)="onFilePicked($event, 'gallery')" />
+</ion-content>

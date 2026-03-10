@@ -1,0 +1,401 @@
+<ion-content class="lavender-content">
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="settings-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Settings</h1>
+          <p>Manage your account settings</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="cute-card security-card">
+      <div class="card-header" (click)="toggleSection('security')">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Account Security</h2>
+            <p>Manage your account security settings</p>
+          </div>
+        </div>
+        <div class="expand-icon">
+          <ion-icon [name]="expandedSections['security'] ? 'chevron-up' : 'chevron-down'"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['security']">
+        <div class="security-options">
+          <div class="security-item" (click)="changePassword()">
+            <div class="security-icon">
+              <ion-icon name="key-outline"></ion-icon>
+            </div>
+            <div class="security-info">
+              <div class="security-title">Change Password</div>
+              <div class="security-subtitle">Update your account password</div>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="security-arrow"></ion-icon>
+          </div>
+          
+          <div class="security-item" (click)="enableTwoFactor()">
+            <div class="security-icon">
+              <ion-icon name="shield-outline"></ion-icon>
+            </div>
+            <div class="security-info">
+              <div class="security-title">Two-Factor Authentication</div>
+              <div class="security-subtitle">Add extra security to your account</div>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="security-arrow"></ion-icon>
+          </div>
+          
+          <div class="security-item" (click)="viewLoginHistory()">
+            <div class="security-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="security-info">
+              <div class="security-title">Login History</div>
+              <div class="security-subtitle">View recent account activity</div>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="security-arrow"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cute-card password-card">
+      <div class="card-header" (click)="toggleSection('password')">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Caregiver Password</h2>
+            <p>Patient Mode Security</p>
+          </div>
+        </div>
+        <div class="status-badge" [class.active]="hasPin">
+          {{ hasPin ? 'Active' : 'Not Set' }}
+        </div>
+        <div class="expand-icon">
+          <ion-icon [name]="expandedSections['password'] ? 'chevron-up' : 'chevron-down'"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['password']">
+        <div class="password-section">
+          
+          <div class="current-password-display" *ngIf="hasPin">
+            <div class="password-info">
+              <span class="password-label">Current Password:</span>
+              <span class="password-value">{{ showMasked ? maskedPin : revealedPin }}</span>
+              <ion-button fill="clear" size="small" (click)="toggleMask()" class="toggle-btn">
+                <ion-icon [name]="showMasked ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          
+          
+          <div class="password-actions" *ngIf="!isEditingPassword">
+            <ion-button expand="block" (click)="startPasswordEdit()" class="primary-btn">
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              {{ hasPin ? 'Change Password' : 'Set Password' }}
+            </ion-button>
+            
+            <ion-button
+              expand="block"
+              fill="outline"
+              color="danger"
+              (click)="promptRemovePin()"
+              *ngIf="hasPin"
+              class="danger-btn">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Remove Password
+            </ion-button>
+          </div>
+          
+          
+          <form (ngSubmit)="savePin()" #pinForm="ngForm" class="password-form" *ngIf="isEditingPassword">
+            <div class="form-field" *ngIf="hasPin">
+              <ion-label>Current Password</ion-label>
+              <div class="input-group">
+                <ion-input
+                  [type]="showCurrent ? 'text' : 'password'"
+                  [(ngModel)]="form.currentPin"
+                  name="currentPin"
+                  placeholder="Enter current password"
+                  required>
+                </ion-input>
+                <ion-button fill="clear" size="small" type="button" (click)="showCurrent = !showCurrent" class="eye-btn">
+                  <ion-icon [name]="showCurrent ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+            
+            <div class="form-field">
+              <ion-label>New Password</ion-label>
+              <div class="input-group">
+                <ion-input
+                  [type]="showNew ? 'text' : 'password'"
+                  [(ngModel)]="form.newPin"
+                  name="newPin"
+                  placeholder="Enter new password (4-32 characters)"
+                  minlength="4"
+                  maxlength="32"
+                  required>
+                </ion-input>
+                <ion-button fill="clear" size="small" type="button" (click)="showNew = !showNew" class="eye-btn">
+                  <ion-icon [name]="showNew ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+            
+            <div class="form-field">
+              <ion-label>Confirm New Password</ion-label>
+              <div class="input-group">
+                <ion-input
+                  [type]="showConfirm ? 'text' : 'password'"
+                  [(ngModel)]="form.confirmPin"
+                  name="confirmPin"
+                  placeholder="Re-enter new password"
+                  minlength="4"
+                  maxlength="32"
+                  required>
+                </ion-input>
+                <ion-button fill="clear" size="small" type="button" (click)="showConfirm = !showConfirm" class="eye-btn">
+                  <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <ion-button expand="block" type="submit" [disabled]="saving" class="primary-btn">
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                {{ hasPin ? 'Update Password' : 'Set Password' }}
+              </ion-button>
+              
+              <ion-button
+                expand="block"
+                fill="outline"
+                (click)="cancelPasswordEdit()"
+                [disabled]="saving"
+                type="button"
+                class="cancel-btn">
+                <ion-icon name="close-outline" slot="start"></ion-icon>
+                Cancel
+              </ion-button>
+            </div>
+          </form>
+          
+          <div class="password-hint">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>This password is required to exit Patient Mode. Use 4-32 characters.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cute-card qr-card">
+      <div class="card-header" (click)="toggleSection('qr')">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Patient QR Code</h2>
+            <p>Share your profile with caregivers</p>
+          </div>
+        </div>
+        <div class="expand-icon">
+          <ion-icon [name]="expandedSections['qr'] ? 'chevron-up' : 'chevron-down'"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['qr']">
+        <div class="qr-section">
+          <ion-button expand="block" fill="outline" (click)="toggleQRCode()" class="cute-button">
+            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+            {{ showQRCode ? 'Hide QR Code' : 'Show QR Code' }}
+          </ion-button>
+          
+          <div *ngIf="showQRCode" class="qr-display">
+            <div class="qr-container" *ngIf="qrCodeImage; else qrPlaceholder">
+              <img [src]="qrCodeImage" alt="Patient QR Code" class="qr-image" />
+              <p class="qr-description">Scan this code to access patient profile</p>
+              
+              <div class="security-code-section">
+                <div class="security-label">Security Code:</div>
+                <div class="security-code">
+                  <code>{{ securityCode }}</code>
+                  <ion-button fill="clear" size="small" (click)="copySecurityCode()">
+                    <ion-icon name="copy-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+              
+              <small class="qr-data">{{ qrCodeData }}</small>
+            </div>
+            <ng-template #qrPlaceholder>
+              <div class="qr-placeholder">
+                <ion-icon name="qr-code-outline"></ion-icon>
+                <p>Generating QR Code...</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cute-card contacts-card">
+      <div class="card-header" (click)="toggleSection('contacts')">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Trusted Contacts</h2>
+            <p>Connect with caregivers</p>
+          </div>
+        </div>
+        <div class="expand-icon">
+          <ion-icon [name]="expandedSections['contacts'] ? 'chevron-up' : 'chevron-down'"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['contacts']">
+        <div class="contacts-section">
+          <div class="contact-options">
+            <ion-button expand="block" fill="outline" (click)="scanQRCode()" [disabled]="isScanning" class="cute-button">
+              <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+              {{ isScanning ? 'Scanning...' : 'Scan QR Code' }}
+            </ion-button>
+            
+            <div class="divider-text">
+              <span>OR</span>
+            </div>
+            
+            <form (ngSubmit)="addContactByCode()" #contactForm="ngForm">
+              <div class="form-field">
+                <ion-label>Security Code</ion-label>
+                <ion-input
+                  [(ngModel)]="contactSecurityCode"
+                  name="contactSecurityCode"
+                  placeholder="Enter security code"
+                  required>
+                </ion-input>
+              </div>
+              
+              <ion-button expand="block" type="submit" [disabled]="!contactSecurityCode || isAddingContact" class="cute-button">
+                <ion-icon name="person-add-outline" slot="start"></ion-icon>
+                {{ isAddingContact ? 'Adding...' : 'Add Contact' }}
+              </ion-button>
+            </form>
+          </div>
+          
+          
+          <div class="contacts-list" *ngIf="trustedContacts.length > 0">
+            <h4>Trusted Contacts</h4>
+            <div class="contact-item" *ngFor="let contact of trustedContacts">
+              <div class="contact-avatar">
+                <ion-icon name="people"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <div class="contact-name">{{ contact.name }}</div>
+                <div class="contact-code">Security Code: {{ contact.securityCode }}</div>
+                <div class="contact-date">Added {{ formatDate(contact.addedAt) }}</div>
+              </div>
+              <ion-button fill="clear" size="small" color="danger" (click)="removeContact(contact.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="options-section">
+      <div class="option-item" (click)="clearAllData()">
+        <div class="option-icon warning">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <div class="option-title">Clear All Data</div>
+          <div class="option-subtitle">Remove all game progress</div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </div>
+
+      <div class="option-item" (click)="goToPatientsDashboard()">
+        <div class="option-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <div class="option-title">Back to Patients Dashboard</div>
+          <div class="option-subtitle">Return to patient list</div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </div>
+      
+      <div class="option-item" (click)="logout()">
+        <div class="option-icon danger">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <div class="option-title">Logout</div>
+          <div class="option-subtitle">Sign out of your account</div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+
+<div class="caregiver-bottom-nav" *ngIf="!isPatientMode">
+  <div class="nav-container">
+    
+    <div class="nav-item" routerLink="/home">
+      <div class="nav-icon home-icon">
+        <ion-icon name="home"></ion-icon>
+      </div>
+      <span class="nav-label">Home</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/video-memories">
+      <div class="nav-icon">
+        <ion-icon name="videocam-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Videos</span>
+    </div>
+    
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/profile">
+      <div class="nav-icon">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+  </div>
+</div>
+

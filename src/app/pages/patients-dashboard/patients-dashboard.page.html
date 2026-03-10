@@ -1,0 +1,165 @@
+<ion-header class="lavender-toolbar">
+  <ion-toolbar>
+    <ion-title class="cute-title">Patients Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/settings" class="cute-icon-btn" aria-label="Settings">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+  <div class="lavender-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>My Patients</h1>
+          <p>Manage and access your patients</p>
+        </div>
+        <ion-button class="add-btn" fill="clear" (click)="addPatient()" aria-label="Add Patient">
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading patients...</p>
+    </div>
+
+    <!-- Patients Grid -->
+    <div *ngIf="!isLoading" class="patients-grid">
+      <!-- Patient Cards -->
+      <div 
+        *ngFor="let patient of patients" 
+        class="patient-card"
+        (click)="selectPatient(patient)">
+        <div class="patient-card-content">
+          <div class="patient-avatar" [class.has-photo]="getPatientPhoto(patient)">
+            <img *ngIf="getPatientPhoto(patient)" [src]="getPatientPhoto(patient)" [alt]="patient.name || 'Patient'">
+            <span *ngIf="!getPatientPhoto(patient)" class="patient-initials">{{ getPatientInitials(patient) }}</span>
+          </div>
+          <div class="patient-info">
+            <h3>{{ patient.name || 'Unnamed Patient' }}</h3>
+            <div class="patient-details">
+              <span *ngIf="patient.age" class="detail-item">
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{ patient.age }} years
+              </span>
+              <span *ngIf="patient.gender" class="detail-item">
+                <ion-icon name="person-outline"></ion-icon>
+                {{ patient.gender }}
+              </span>
+            </div>
+          </div>
+          <div class="patient-action">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="patients.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <h2>No Patients Yet</h2>
+        <p>Add your first patient to get started</p>
+        <ion-button (click)="addPatient()" class="add-first-patient-btn">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add Patient
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <ion-modal [isOpen]="showAddForm" (didDismiss)="cancelAddPatient()" class="patient-add-modal">
+    <ng-template>
+      <div class="add-form-wrapper">
+        <div class="add-form-card">
+          <div class="add-form-header">
+            <h1>Patient Details</h1>
+            <p>Please provide information about the patient</p>
+          </div>
+
+          <div class="add-form-body">
+            <div class="form-group">
+              <label for="patientName">Patient Name</label>
+              <ion-item class="input-item">
+                <ion-icon name="person-outline" slot="start"></ion-icon>
+                <ion-input
+                  id="patientName"
+                  [(ngModel)]="newPatientName"
+                  placeholder="Enter patient's full name"
+                  type="text"
+                  clearInput
+                ></ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-group">
+              <label for="patientAge">Age</label>
+              <ion-item class="input-item">
+                <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                <ion-input
+                  id="patientAge"
+                  [(ngModel)]="newPatientAge"
+                  placeholder="Enter patient's age"
+                  type="number"
+                  min="0"
+                  max="150"
+                  clearInput
+                ></ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-group">
+              <label for="patientSex">Sex</label>
+              <ion-item class="input-item">
+                <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+                <ion-select
+                  id="patientSex"
+                  [(ngModel)]="newPatientSex"
+                  placeholder="Select patient's sex"
+                >
+                  <ion-select-option value="Male">Male</ion-select-option>
+                  <ion-select-option value="Female">Female</ion-select-option>
+                  <ion-select-option value="Other">Other</ion-select-option>
+                  <ion-select-option value="Prefer not to say">Prefer not to say</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+          </div>
+
+          <div class="add-form-buttons">
+            <ion-button
+              expand="block"
+              class="save-button"
+              (click)="saveNewPatient()"
+              [disabled]="isSavingPatient"
+            >
+              <ion-spinner *ngIf="isSavingPatient" name="crescent"></ion-spinner>
+              <span *ngIf="!isSavingPatient">SAVE & CONTINUE</span>
+            </ion-button>
+
+            <ion-button
+              expand="block"
+              fill="outline"
+              class="back-button"
+              (click)="cancelAddPatient()"
+              [disabled]="isSavingPatient"
+            >
+              BACK
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>

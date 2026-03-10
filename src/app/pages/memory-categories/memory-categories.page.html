@@ -1,0 +1,121 @@
+<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="albums-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Memory Categories</h1>
+          <p>Choose a category to view your saved memories</p>
+        </div>
+        
+      </div>
+    </div>
+    
+    
+    <div class="add-category-section" *ngIf="!isPatientMode">
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        class="add-category-btn"
+        (click)="onAddCategory()">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Create New Category
+      </ion-button>
+    </div>
+
+    
+    <div class="categories-grid">
+      
+      
+      <div class="category-card people-card" routerLink="/people">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="card-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <div class="card-info">
+            <h3>People</h3>
+            <p>Family & Friends</p>
+          </div>
+        </div>
+        <div class="card-glow"></div>
+      </div>
+
+      
+      <div class="category-card places-card" routerLink="/places">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="card-icon">
+            <ion-icon name="location-outline"></ion-icon>
+          </div>
+          <div class="card-info">
+            <h3>Places</h3>
+            <p>Special Locations</p>
+          </div>
+        </div>
+        <div class="card-glow"></div>
+      </div>
+
+      
+      <div class="category-card objects-card" routerLink="/objects">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="card-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <div class="card-info">
+            <h3>Objects</h3>
+            <p>Meaningful Items</p>
+          </div>
+        </div>
+        <div class="card-glow"></div>
+      </div>
+
+      
+      <div
+        class="category-card custom-card"
+        *ngFor="let c of userCategories"
+        [routerLink]="['/category', c.id]"
+        [state]="{ categoryName: c.name }">
+        
+        
+        <div class="card-actions" *ngIf="!isPatientMode">
+          <button
+            class="action-btn edit-btn"
+            (click)="onEditCategory(c, $event)"
+            title="Edit category">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+          <button
+            class="action-btn delete-btn"
+            (click)="onRemoveCategory(c, $event)"
+            title="Delete category">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="card-icon">
+            <ion-icon [name]="getCategoryIcon(c)"></ion-icon>
+          </div>
+          <div class="card-info">
+            <h3>{{ c.name }}</h3>
+            <p>{{ c.description || 'Custom category' }}</p>
+          </div>
+        </div>
+        <div class="card-glow"></div>
+      </div>
+
+    </div>
+  </div>
+

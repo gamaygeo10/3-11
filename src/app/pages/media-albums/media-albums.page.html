@@ -1,0 +1,50 @@
+<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="images-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Your precious memories</h1>
+          <p>Browse and manage your photos and videos</p>
+        </div>
+        
+      </div>
+    </div>
+
+    
+    <div class="main-actions">
+      <div class="action-card photo-action" routerLink="/photo-memories">
+        <div class="card-glow"></div>
+        <div class="action-icon">
+          <ion-icon name="images-outline"></ion-icon>
+        </div>
+        <div class="action-text">
+          <h2>Photo Memories</h2>
+          <p>Browse your photo collection</p>
+        </div>
+      </div>
+
+      <div class="action-card video-action" routerLink="/video-memories">
+        <div class="card-glow"></div>
+        <div class="action-icon">
+          <ion-icon name="videocam-outline"></ion-icon>
+        </div>
+        <div class="action-text">
+          <h2>Video Memories</h2>
+          <p>Watch special moments</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ion-content>

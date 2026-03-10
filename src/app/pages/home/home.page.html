@@ -1,0 +1,168 @@
+<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+
+  <div class="lavender-container">
+    
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <img src="assets/ALALA_logo.png" alt="ALALA logo" class="logo-image" />
+        </div>
+        <div class="welcome-text">
+          <h1>Welcome to ALALA!</h1>
+          <p>Your magical memory companion</p>
+        </div>
+        <ion-button routerLink="/settings" class="settings-btn" fill="clear" *ngIf="!isPatientMode" aria-label="Settings">
+          <ion-icon name="settings-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+    <div class="cute-card progress-card" *ngIf="!isPatientMode">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="analytics-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Today's Progress</h2>
+            <p>Your amazing achievements!</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stats-container">
+        <div class="stat-card accuracy-card">
+          <div class="stat-icon">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ todayStats.accuracy }}%</span>
+            <span class="stat-label">Accuracy</span>
+          </div>
+        </div>
+        
+        <div class="stat-card cards-card">
+          <div class="stat-icon">
+            <ion-icon name="library-outline"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ todayStats.cardsToday }}</span>
+            <span class="stat-label">Cards</span>
+          </div>
+        </div>
+        
+        <div class="stat-card time-card">
+          <div class="stat-icon">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ todayStats.avgTime }}s</span>
+            <span class="stat-label">Avg Time</span>
+          </div>
+        </div>
+      </div>
+      
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        class="cute-button"
+        routerLink="/progress">
+        <ion-icon slot="start" name="analytics-outline"></ion-icon>
+        View Full Report 
+      </ion-button>
+    </div>
+    
+    <div class="main-actions">
+      <div class="action-card primary-action" routerLink="/brain-games">
+        <div class="card-glow"></div>
+        <div class="action-icon">
+          <ion-icon name="game-controller-outline"></ion-icon>
+        </div>
+        <div class="action-text">
+          <h2>Play Brain Games</h2>
+          <p>Train your memory with fun exercises</p>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <div class="action-card memory-action" routerLink="/memory-categories">
+          <div class="action-icon">
+            <ion-icon name="albums-outline"></ion-icon>
+          </div>
+          <div class="action-text">
+            <h3>Memory Cards</h3>
+            <p>People, Places, Objects</p>
+          </div>
+        </div>
+
+        <div class="action-card media-action" routerLink="/media-albums">
+          <div class="action-icon">
+            <ion-icon name="images-outline"></ion-icon>
+          </div>
+          <div class="action-text">
+            <h3>Media Albums</h3>
+            <p>Photos & Videos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    
+
+  </div>
+</ion-content>
+
+
+<div class="caregiver-bottom-nav" *ngIf="!isPatientMode">
+  <div class="nav-container">
+    
+    <div class="nav-item active" routerLink="/home">
+      <div class="nav-icon home-icon">
+        <ion-icon name="home"></ion-icon>
+      </div>
+      <span class="nav-label">Home</span>
+    </div>
+    
+           <div class="nav-item" routerLink="/video-memories">
+             <div class="nav-icon">
+               <ion-icon name="videocam-outline"></ion-icon>
+             </div>
+             <span class="nav-label">Videos</span>
+           </div>
+    
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/progress">
+      <div class="nav-icon progress-icon">
+        <ion-icon name="trending-up-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Progress</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/profile">
+      <div class="nav-icon">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="patient-bottom-nav" *ngIf="isPatientMode">
+  <div class="nav-container">
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+  </div>
+</div>

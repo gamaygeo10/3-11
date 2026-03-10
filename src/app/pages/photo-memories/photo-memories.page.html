@@ -1,0 +1,135 @@
+<ion-content class="lavender-content" [scrollY]="false">
+  <div class="lavender-container">
+
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="images-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Photo Memories</h1>
+          <p>Browse your captured moments</p>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="gallery-container" *ngIf="cards.length > 0">
+      
+      
+      <div class="selection-header" *ngIf="isSelectionMode">
+        <div class="selection-controls">
+          <ion-button fill="clear" class="cancel-btn" (click)="toggleSelectionMode()">
+            <ion-icon name="close"></ion-icon>
+            <span class="btn-text">Cancel</span>
+          </ion-button>
+          
+          <ion-button fill="clear" class="select-all-btn" (click)="selectAllCards()" [disabled]="selectedCards.size === cards.length">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span class="btn-text">Select All</span>
+          </ion-button>
+          
+          <ion-button fill="clear" color="danger" class="delete-btn" (click)="deleteSelected()" [disabled]="selectedCards.size === 0">
+            <ion-icon name="trash"></ion-icon>
+            <span class="btn-text">Delete</span>
+          </ion-button>
+        </div>
+        
+        <div class="selection-count">{{ selectedCards.size }} selected</div>
+      </div>
+
+      
+      <div class="swipeable-gallery" 
+           (swipeleft)="onSwipeLeft()" 
+           (swiperight)="onSwipeRight()"
+           (touchstart)="onTouchStart($event)"
+           (touchmove)="onTouchMove($event)"
+           (touchend)="onTouchEnd($event)">
+        
+        
+        <div class="gallery-grid" [style.transform]="'translateX(' + swipeOffset + 'px)'">
+          <div
+            class="gallery-item"
+            *ngFor="let card of cards; let i = index; trackBy: trackByCardId"
+            [class.selected]="selectedCards.has(card.id)"
+            (click)="isSelectionMode ? toggleCardSelection(card.id) : openDetailView(card, i)">
+          
+          
+          <img [src]="imgSrc(card)" [alt]="card.label || 'Memory'" class="gallery-image" />
+        </div>
+        </div>
+      </div>
+
+    </div>
+
+    
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isSelectionMode && cards.length > 0">
+      <ion-fab-button class="select-multiple-fab" (click)="toggleSelectionMode()">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    
+    <div *ngIf="cards.length === 0" class="empty-state">
+      <ion-icon class="empty-icon" name="images-outline"></ion-icon>
+      <h2 class="empty-title">No Photos yet</h2>
+      <p class="empty-subtitle">Tap the + to add a photo.</p>
+      <ion-button class="empty-btn" *ngIf="!isPatientMode" routerLink="/add-flashcard">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add Photo
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>
+
+
+<ion-modal [isOpen]="showDetailModal" (didDismiss)="closeDetailView()" class="detail-modal">
+  <ng-template>
+    <div class="modal-content" 
+         (swipeleft)="nextImage()" 
+         (swiperight)="prevImage()"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      
+      <div class="nav-arrows">
+        <ion-button fill="clear" class="nav-btn prev-btn" (click)="prevImage()" *ngIf="cards.length > 1">
+          <ion-icon name="chevron-back"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" class="nav-btn next-btn" (click)="nextImage()" *ngIf="cards.length > 1">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="modal-header">
+        <h3 class="modal-title">{{ selectedCard?.label || 'Memory' }}</h3>
+        <ion-button fill="clear" class="close-btn" (click)="closeDetailView()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="image-container">
+        <img [src]="imgSrc(selectedCard)" [alt]="selectedCard.label || 'Memory'" class="modal-image" *ngIf="selectedCard" />
+      </div>
+      
+      <div class="modal-info" *ngIf="selectedCard">
+        <div class="info-label">Category</div>
+        <div class="info-value">{{ selectedCard.category | titlecase }}</div>
+      </div>
+      
+      <div class="modal-actions">
+        <ion-button expand="block" class="action-btn delete-btn" (click)="deleteCard(selectedCard!, $event)">
+          <ion-icon name="trash" slot="start"></ion-icon>
+          Delete Photo
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

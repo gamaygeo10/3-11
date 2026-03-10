@@ -1,0 +1,443 @@
+<ion-content class="progress-screen">
+  <div class="lavender-container">
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <ion-icon name="analytics-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Progress</h1>
+          <p>Your magical memory companion</p>
+        </div>
+        <ion-button routerLink="/settings" class="settings-btn" fill="clear" *ngIf="!isPatientMode" aria-label="Settings">
+          <ion-icon name="settings-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your progress...</p>
+  </div>
+
+  
+  <div *ngIf="!isLoading">
+    
+    <div class="period-selector">
+      <ion-segment [(ngModel)]="selectedPeriod" (ionChange)="onPeriodChange()">
+        <ion-segment-button value="today">
+          <ion-label>Today</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="week">
+          <ion-label>Week</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="month">
+          <ion-label>Month</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="custom">
+          <ion-label>Custom</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="all">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    
+    <div class="custom-range" *ngIf="selectedPeriod === 'custom'">
+      <div class="custom-range-header">
+        <h3>
+          <ion-icon name="calendar-outline"></ion-icon>
+          Select Date Range
+        </h3>
+        <p>Choose your custom time period</p>
+      </div>
+      
+      <div class="date-range-dropdown" (click)="toggleDateRangePicker()">
+        <div class="dropdown-content">
+          <ion-icon name="calendar-outline" class="calendar-icon"></ion-icon>
+          <span class="date-range-text">{{ dateRangeText }}</span>
+          <ion-icon name="chevron-down" class="dropdown-arrow"></ion-icon>
+        </div>
+      </div>
+
+      
+      <div class="ios-date-picker" *ngIf="isDateRangePickerOpen">
+        <div class="picker-header">
+          <div class="header-content">
+            <h3>Select Date Range</h3>
+          </div>
+          <ion-button fill="clear" size="small" class="close-btn" (click)="closeDateRangePicker()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <div class="picker-content">
+          
+          <div class="date-section">
+            <div class="section-header">
+              <div class="section-icon start-icon">
+                <ion-icon name="play-circle"></ion-icon>
+              </div>
+              <div class="section-title">
+                <h4>Start Date</h4>
+              </div>
+            </div>
+            
+            <div class="wheel-container">
+              <div class="wheel-column month-wheel">
+                <div class="wheel-label">MONTH</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="startMonth === month.value"
+                       (click)="selectStartMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="startMonth === month.value"
+                       (click)="selectStartMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="startMonth === month.value"
+                       (click)="selectStartMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="wheel-column day-wheel">
+                <div class="wheel-label">DAY</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(startMonth, startYear); let i = index"
+                       [class.selected]="startDay == day.toString()"
+                       (click)="selectStartDay(day)">
+                    {{day}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(startMonth, startYear); let i = index"
+                       [class.selected]="startDay == day.toString()"
+                       (click)="selectStartDay(day)">
+                    {{day}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(startMonth, startYear); let i = index"
+                       [class.selected]="startDay == day.toString()"
+                       (click)="selectStartDay(day)">
+                    {{day}}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="wheel-column year-wheel">
+                <div class="wheel-label">YEAR</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="startYear == year.toString()"
+                       (click)="selectStartYear(year)">
+                    {{year}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="startYear == year.toString()"
+                       (click)="selectStartYear(year)">
+                    {{year}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="startYear == year.toString()"
+                       (click)="selectStartYear(year)">
+                    {{year}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div class="date-separator">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </div>
+          
+          
+          <div class="date-section">
+            <div class="section-header">
+              <div class="section-icon end-icon">
+                <ion-icon name="stop-circle"></ion-icon>
+              </div>
+              <div class="section-title">
+                <h4>End Date</h4>
+              </div>
+            </div>
+            
+            <div class="wheel-container">
+              <div class="wheel-column month-wheel">
+                <div class="wheel-label">MONTH</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="endMonth === month.value"
+                       (click)="selectEndMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="endMonth === month.value"
+                       (click)="selectEndMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let month of monthOptions; let i = index"
+                       [class.selected]="endMonth === month.value"
+                       (click)="selectEndMonth(month.value)">
+                    {{month.name}}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="wheel-column day-wheel">
+                <div class="wheel-label">DAY</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(endMonth, endYear); let i = index"
+                       [class.selected]="endDay == day.toString()"
+                       (click)="selectEndDay(day)">
+                    {{day}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(endMonth, endYear); let i = index"
+                       [class.selected]="endDay == day.toString()"
+                       (click)="selectEndDay(day)">
+                    {{day}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let day of getDaysInMonth(endMonth, endYear); let i = index"
+                       [class.selected]="endDay == day.toString()"
+                       (click)="selectEndDay(day)">
+                    {{day}}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="wheel-column year-wheel">
+                <div class="wheel-label">YEAR</div>
+                <div class="wheel-scroll">
+                  
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="endYear == year.toString()"
+                       (click)="selectEndYear(year)">
+                    {{year}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="endYear == year.toString()"
+                       (click)="selectEndYear(year)">
+                    {{year}}
+                  </div>
+                  <div class="wheel-item" 
+                       *ngFor="let year of availableYears; let i = index"
+                       [class.selected]="endYear == year.toString()"
+                       (click)="selectEndYear(year)">
+                    {{year}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="picker-actions">
+          <ion-button fill="outline" class="cancel-btn" (click)="closeDateRangePicker()">
+            Cancel
+          </ion-button>
+          <ion-button class="apply-btn" (click)="applyDateRange()">
+            Apply Range
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="stats-grid">
+      <div class="stat-card accuracy">
+        <div class="stat-icon">
+          <ion-icon name="target-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ overallStats.accuracy }}%</h3>
+          <p>Overall Accuracy</p>
+        </div>
+      </div>
+
+      <div class="stat-card time">
+        <div class="stat-icon">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ overallStats.avgTimePerCard }}s</h3>
+          <p>Avg Time/Card</p>
+        </div>
+      </div>
+
+      <div class="stat-card cards">
+        <div class="stat-icon">
+          <ion-icon name="library-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ overallStats.totalCards }}</h3>
+          <p>Cards Reviewed</p>
+        </div>
+      </div>
+
+      <div class="stat-card skipped">
+        <div class="stat-icon">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ overallStats.skippedCards }}</h3>
+          <p>Cards Skipped</p>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="chart-section">
+      <h2>Accuracy Over Time - {{ selectedPeriod === 'today' ? 'Today' : (selectedPeriod === 'week' ? 'Week View' : (selectedPeriod === 'month' ? 'Month View' : 'Progress')) }}</h2>
+      <div class="chart-container" *ngIf="chartLoaded">
+        <canvas #accuracyChart></canvas>
+      </div>
+      <div class="chart-fallback" *ngIf="!chartLoaded">
+        <div class="fallback-message">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          <p>Chart visualization temporarily unavailable</p>
+          <p class="small-text">Data is still being tracked in the background</p>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cards-container">
+      
+      <div class="category-section">
+        <div class="section-header-text">
+          <h2>
+            <ion-icon name="analytics-outline"></ion-icon>
+            Category Performance
+          </h2>
+        </div>
+        
+        <div class="category-performance-button-container">
+          <div class="category-performance-card" routerLink="/category-performance">
+            <div class="card-glow"></div>
+            <div class="card-content">
+              <div class="category-performance-icon">
+                <ion-icon name="analytics-outline"></ion-icon>
+              </div>
+              <h3>Performance by Category</h3>
+              <p>View detailed analytics and insights</p>
+              <div class="play-button">
+                <ion-icon name="analytics"></ion-icon>
+                View Details
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="session-section">
+        <div class="section-header-text">
+          <h2>
+            <ion-icon name="calendar-outline"></ion-icon>
+            Recent Sessions
+          </h2>
+        </div>
+        
+        <div class="recent-sessions-button-container">
+          <div class="recent-sessions-card" routerLink="/recent-sessions">
+            <div class="card-glow"></div>
+            <div class="card-content">
+              <div class="recent-sessions-icon">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+              <h3>Session History</h3>
+              <p>Review your recent activity</p>
+              <div class="play-button">
+                <ion-icon name="time"></ion-icon>
+                View History
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<div class="caregiver-bottom-nav" *ngIf="!isPatientMode">
+  <div class="nav-container">
+    
+    <div class="nav-item" routerLink="/home">
+      <div class="nav-icon home-icon">
+        <ion-icon name="home"></ion-icon>
+      </div>
+      <span class="nav-label">Home</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/video-memories">
+      <div class="nav-icon">
+        <ion-icon name="videocam-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Videos</span>
+    </div>
+    
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+    
+    <div class="nav-item active" routerLink="/progress">
+      <div class="nav-icon progress-icon">
+        <ion-icon name="trending-up-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Progress</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/profile">
+      <div class="nav-icon">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="patient-bottom-nav" *ngIf="isPatientMode">
+  <div class="nav-container">
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+  </div>
+</div>
+
+
+
+

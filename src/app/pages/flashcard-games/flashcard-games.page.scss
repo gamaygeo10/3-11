@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap');
+
+.home-screen {
+  --ion-background-color: transparent;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3ecff 50%, #f9f2ff 100%);
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+
+  // Fixed background elements - lower z-index
+  &::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+.header-spacer {
+  height: 40px;
+}
+
+.section-label {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 40px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  &::after {
+    content: '';
+    display: block;
+    font-size: 20px;
+    margin-top: 8px;
+  }
+}
+
+.game-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 50px; // Add bottom padding for scrolling
+}
+
+.category-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  padding: 35px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  z-index: 10; // Ensure cards are above background
+
+  // Animated gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+    border-radius: 25px;
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  &:hover {
+  }
+
+  &:active {
+  }
+
+  .category-icon {
+    font-size: 70px;
+    margin-bottom: 20px;
+    pointer-events: none; // Prevent icon from blocking clicks
+  }
+
+  h3 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 12px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+  }
+
+  p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 20px 0;
+    font-weight: 500;
+    pointer-events: none;
+  }
+
+  .play-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+    pointer-events: none; // Button is just visual, card handles click
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    &:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    ion-icon {
+      margin-left: 8px;
+      font-size: 18px;
+      pointer-events: none;
+    }
+  }
+
+  // Individual card themes
+  &.people {
+
+    .category-icon {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #ffeef0 0%, #ffe0e6 100%);
+    }
+  }
+
+  &.places {
+
+    .category-icon {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #e8f8f7 0%, #e0f2f1 100%);
+    }
+  }
+
+  &.objects {
+    animation-delay: 0.3s;
+    
+    .category-icon {
+      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    }
+  }
+}
+
+// Floating elements - fixed position with lower z-index
+.floating-elements {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; // Lower than cards
+
+  .floating-emoji {
+    position: absolute;
+    font-size: 24px;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .emoji-1 { top: 10%; left: 10%; }
+  .emoji-2 { top: 20%; right: 15%; }
+  .emoji-3 { top: 60%; left: 5%; }
+  .emoji-4 { top: 70%; right: 10%; }
+}
+
+// Animations removed
+
+// Responsive design
+@media (min-width: 768px) {
+  .game-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 800px;
+  }
+
+  .category-card {
+    padding: 40px;
+    
+    .category-icon { font-size: 80px; }
+    h3 { font-size: 28px; }
+  }
+}
+
+@media (min-width: 1024px) {
+  .game-categories {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1000px;
+  }
+}
+
+
+
+

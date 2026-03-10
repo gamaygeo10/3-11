@@ -1,0 +1,438 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.lavender-content {
+  --ion-background-color: #faf8ff;
+  --ion-text-color: #2d1b69;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #faf8ff 0%, #f3f0ff 50%, #ede8ff 100%);
+  position: relative;
+}
+
+.lavender-toolbar {
+  --background: linear-gradient(135deg, #794494 0%, #794494 50%, #794494 100%);
+  --color: white;
+  --border-width: 0;
+  box-shadow: 0 4px 20px rgba(121, 68, 148, 0.3);
+  
+  .cute-title {
+    font-weight: 600;
+    font-size: 22px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+.cute-icon-btn {
+  --background: rgba(255,255,255,0.15);
+  --color: white;
+  --border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  margin: 0 4px;
+  backdrop-filter: blur(10px);
+  
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.lavender-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  padding: 16px;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 100px;
+}
+
+.add-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 16px;
+}
+
+.add-form-card {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 16px 40px rgba(148, 163, 184, 0.35);
+  padding: 24px 24px 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.add-form-header {
+  text-align: center;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  p {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: #6b7280;
+  }
+}
+
+.add-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+}
+
+.input-item {
+  --background: #f9fafb;
+  --border-radius: 14px;
+  --inner-border-width: 0;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border: 1px solid #e5e7eb;
+
+  ion-icon {
+    color: #9ca3af;
+  }
+}
+
+.add-form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.save-button {
+  --background: #794494;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 20px rgba(121, 68, 148, 0.35);
+  --color: #ffffff;
+  font-weight: 600;
+}
+
+.back-button {
+  --border-radius: 16px;
+  --border-color: #794494;
+  --color: #794494;
+  font-weight: 600;
+}
+
+.patient-add-modal::part(backdrop) {
+  --background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(10px);
+}
+
+.patient-add-modal::part(content) {
+  --background: transparent;
+  --box-shadow: none;
+}
+
+.welcome-section {
+  flex-shrink: 0;
+  
+  .welcome-content {
+    background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+    border: 2px solid #c7d2fe;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(121, 68, 148, 0.15);
+    
+    .welcome-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #794494 0%, #9c6bb0 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(121, 68, 148, 0.3);
+      
+      ion-icon {
+        font-size: 28px;
+        color: white;
+      }
+    }
+    
+    .welcome-text {
+      flex: 1;
+      
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #2d1b69;
+        margin-bottom: 4px;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 400;
+      }
+    }
+
+    .add-btn {
+      --color: #794494;
+      --background: transparent;
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      flex-shrink: 0;
+      margin: 0;
+      
+      ion-icon {
+        font-size: 32px;
+        color: #794494;
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+  
+  ion-spinner {
+    --color: #794494;
+  }
+  
+  p {
+    color: #6b7280;
+    font-size: 14px;
+  }
+}
+
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+}
+
+.patient-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(121, 68, 148, 0.15);
+  overflow: hidden;
+  border: 2px solid rgba(121, 68, 148, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(121, 68, 148, 0.25);
+    border-color: rgba(121, 68, 148, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(-2px);
+  }
+  
+  &.add-patient-card {
+    border-style: dashed;
+    border-color: rgba(121, 68, 148, 0.3);
+    background: linear-gradient(135deg, #faf8ff 0%, #f3f0ff 100%);
+    
+    &:hover {
+      border-color: rgba(121, 68, 148, 0.5);
+      background: linear-gradient(135deg, #f3f0ff 0%, #ede8ff 100%);
+    }
+  }
+}
+
+.patient-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  position: relative;
+}
+
+.patient-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #794494 0%, #9c6bb0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(121, 68, 148, 0.3);
+  overflow: hidden;
+  position: relative;
+  
+  &.has-photo {
+    background: transparent;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  &.add-avatar {
+    background: rgba(121, 68, 148, 0.1);
+    border: 2px dashed rgba(121, 68, 148, 0.4);
+    
+    ion-icon {
+      font-size: 32px;
+      color: #794494;
+    }
+  }
+  
+  .patient-initials {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+  }
+}
+
+.patient-info {
+  flex: 1;
+  width: 100%;
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d1b69;
+    line-height: 1.3;
+  }
+  
+  .patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #6b7280;
+      
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.patient-action {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  
+  ion-icon {
+    font-size: 20px;
+    color: #9ca3af;
+  }
+}
+
+.add-patient-card {
+  .patient-info {
+    h3 {
+      color: #794494;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .empty-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(121, 68, 148, 0.1) 0%, rgba(121, 68, 148, 0.05) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    
+    ion-icon {
+      font-size: 64px;
+      color: #794494;
+      opacity: 0.5;
+    }
+  }
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d1b69;
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  
+  .add-first-patient-btn {
+    --background: linear-gradient(135deg, #794494 0%, #9c6bb0 100%);
+    --color: white;
+    --border-radius: 16px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(121, 68, 148, 0.3);
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}

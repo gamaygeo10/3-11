@@ -1,0 +1,205 @@
+<ion-content class="lavender-content">
+  <div class="lavender-container">
+    
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>Patient Profile</h1>
+          <p>Your magical memory companion</p>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="patient-header">
+      <div class="patient-avatar">
+        <ion-icon name="person-circle"></ion-icon>
+      </div>
+      <div class="patient-basic-info">
+        <h1 class="patient-name">{{ patientInfo?.name || 'Patient Name' }}</h1>
+        <p class="patient-id">Patient ID: {{ patientId }}</p>
+        <div class="patient-status">
+          <span class="status-badge active">Active</span>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cute-card patient-section">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="medical-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Patient Information</h2>
+            <p>Essential patient details</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="patient-details">
+        <div class="detail-item" *ngIf="patientInfo?.name">
+          <div class="detail-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">{{ patientInfo?.name }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="(patientInfo?.age ?? 0) > 0">
+          <div class="detail-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Age</span>
+            <span class="detail-value">{{ patientInfo?.age }} years old</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="patientInfo?.gender">
+          <div class="detail-icon">
+            <ion-icon name="male-female-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Gender</span>
+            <span class="detail-value">{{ patientInfo?.gender }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="patientInfo?.username">
+          <div class="detail-icon">
+            <ion-icon name="at-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Username</span>
+            <span class="detail-value">{{ patientInfo?.username }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="!patientInfo || (!patientInfo.name && !patientInfo.age && !patientInfo.gender && !patientInfo.username)">
+          <div class="detail-content">
+            <span class="detail-value" style="color: #999; font-style: italic;">Patient information will be displayed here once available.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="cute-card caregiver-section">
+      <div class="card-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <div class="header-text">
+            <h2>Caregiver Information</h2>
+            <p>Primary caregiver details</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="caregiver-details">
+        <div class="detail-item" *ngIf="caregiverInfo?.name">
+          <div class="detail-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">{{ caregiverInfo?.name }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="caregiverInfo?.phone">
+          <div class="detail-icon">
+            <ion-icon name="call-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Phone Number</span>
+            <span class="detail-value">{{ caregiverInfo?.phone }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="caregiverInfo?.email">
+          <div class="detail-icon">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">{{ caregiverInfo?.email }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="accountCreated">
+          <div class="detail-icon">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Account Created</span>
+            <span class="detail-value">{{ accountCreated ? (accountCreated | date:'MMM dd, yyyy') : 'Not available' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+
+<div class="caregiver-bottom-nav" *ngIf="!isPatientMode">
+  <div class="nav-container">
+    
+    <div class="nav-item" routerLink="/home">
+      <div class="nav-icon home-icon">
+        <ion-icon name="home"></ion-icon>
+      </div>
+      <span class="nav-label">Home</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/video-memories">
+      <div class="nav-icon">
+        <ion-icon name="videocam-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Videos</span>
+    </div>
+    
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+    
+    <div class="nav-item" routerLink="/progress">
+      <div class="nav-icon progress-icon">
+        <ion-icon name="trending-up-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Progress</span>
+    </div>
+    
+    <div class="nav-item active" routerLink="/profile">
+      <div class="nav-icon">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="patient-bottom-nav" *ngIf="isPatientMode">
+  <div class="nav-container">
+    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
+      <div class="nav-icon caregiver-icon">
+        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
+      </div>
+      <span class="nav-label">Caregiver</span>
+    </div>
+  </div>
+</div>

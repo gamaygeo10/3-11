@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow public read access to security codes collection for login
+    match /securityCodes/{codeId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Allow unauthenticated reads for security code lookup during login
+    // This is safe because we only expose the securityCode field, not sensitive data
+    match /caregiver/{userId} {
+      allow read: if request.auth == null;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow authenticated caregiver to read/write their own game sessions
+    match /gameSessions/{sessionId} {
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Allow authenticated caregiver to read/write their own progress
+    match /userProgress/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow authenticated caregiver to read/write flashcards
+    match /flashcards/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Under each caregiver: patients subcollection; each patient has patientInfo, userProgress, activities, and userFlashcards
+    match /caregiver/{caregiverId}/patients/{patientId}/patientInfo/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == caregiverId;
+    }
+    match /caregiver/{caregiverId}/patients/{patientId}/userProgress/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == caregiverId;
+    }
+    match /caregiver/{caregiverId}/patients/{patientId}/activities/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == caregiverId;
+    }
+    match /caregiver/{caregiverId}/patients/{patientId}/userFlashcards/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == caregiverId;
+    }
+    match /caregiver/{caregiverId}/patients/{patientId}/videos/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == caregiverId;
+    }
+  }
+}

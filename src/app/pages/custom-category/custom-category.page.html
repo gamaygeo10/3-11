@@ -1,0 +1,141 @@
+<ion-content class="game-home-screen" [fullscreen]="true">
+
+  <div class="lavender-container">
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <ion-buttons slot="start">
+          <ion-button class="back-btn" fill="clear" (click)="goBack()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <div class="welcome-icon">
+          <ion-icon name="apps-outline"></ion-icon>
+        </div>
+        <div class="welcome-text">
+          <h1>{{ categoryName || 'Custom Category' }}</h1>
+          <p>{{ categoryDescription || 'Your memories' }}</p>
+        </div>
+        <ion-button class="add-btn" fill="clear" [routerLink]="['/add-flashcard']" [queryParams]="{ defaultCategoryId: id }" *ngIf="!isPatientMode" aria-label="Add Card">
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="page-body">
+    
+    <div *ngIf="!currentCard" class="empty-state">
+      <ion-icon class="empty-icon" name="grid-outline"></ion-icon>
+      <h2 class="empty-title">No Items yet</h2>
+      <p class="empty-subtitle">Tap the + to add an item.</p>
+      <ion-button class="empty-btn" [routerLink]="['/add-flashcard']" [queryParams]="{ defaultCategoryId: id }" *ngIf="!isPatientMode">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add Item
+      </ion-button>
+    </div>
+
+    
+    <div *ngIf="currentCard" class="people-grid" aria-live="polite">
+      
+      <div class="area area-name">
+        <div class="name-container">
+          
+          <button
+            type="button"
+            class="edit-chip"
+            aria-label="Edit"
+            (click)="editCurrentCard()"
+            *ngIf="currentCard && !isPatientMode"
+            title="Edit">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+
+          
+          <div class="name-tag" [title]="currentCard.label || 'Untitled'">
+            {{ currentCard.label || 'Untitled' }}
+          </div>
+
+          
+          <button
+            type="button"
+            class="delete-chip"
+            aria-label="Delete"
+            (click)="deleteCurrentCard()"
+            *ngIf="currentCard && !isPatientMode"
+            title="Delete">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      
+      <div class="area area-image">
+        <div class="image-container">
+          <img
+            [src]="currentCard.image"
+            [alt]="currentCard.label || 'Item'"
+          />
+        </div>
+      </div>
+
+      
+      <div class="area area-controls">
+        <ion-button
+          shape="round"
+          fill="solid"
+          color="dark"
+          size="small"
+          class="play-btn small-square"
+          (click)="toggleAudio()"
+          [disabled]="!currentCard.audio">
+          <ion-icon slot="icon-only" [name]="isPlaying ? 'pause' : 'play'"></ion-icon>
+        </ion-button>
+      </div>
+
+      
+      <div class="area area-timeline">
+        <div class="audio-timeline" [class.disabled]="!currentCard.audio">
+          <ion-range
+            [min]="0"
+            [max]="duration"
+            [value]="currentTime"
+            [disabled]="!currentCard.audio"
+            [snaps]="false"
+            [ticks]="false"
+            step="0.01"
+            (ionInput)="seekAudio($event)">
+          </ion-range>
+          <div class="time-display">
+            {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="area area-nav">
+        <div class="nav-choices-grid">
+          <button
+            type="button"
+            class="option-button nav-choice"
+            (click)="prevCard()"
+            [disabled]="displayCards.length <= 1"
+            aria-label="Previous">
+            <ion-icon name="arrow-back-outline" class="option-caret left" aria-hidden="true"></ion-icon>
+            <span class="option-text">Previous</span>
+          </button>
+
+          <button
+            type="button"
+            class="option-button nav-choice"
+            (click)="nextCard()"
+            [disabled]="displayCards.length <= 1"
+            aria-label="Next">
+            <span class="option-text">Next</span>
+            <ion-icon name="arrow-forward-outline" class="option-caret" aria-hidden="true"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

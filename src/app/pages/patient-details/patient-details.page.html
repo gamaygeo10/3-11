@@ -1,0 +1,95 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/signup"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="app-title">ALALA</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="patient-details-screen">
+  <div class="container">
+    
+    <div class="header-section">
+      <h1>Patient Details</h1>
+      <p>Please provide information about the patient</p>
+    </div>
+
+    
+    <div class="form-section">
+      
+      <div class="form-group">
+        <label for="patientName">Patient Name</label>
+        <ion-item class="input-item">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-input
+            id="patientName"
+            [(ngModel)]="patientName"
+            placeholder="Enter patient's full name"
+            type="text"
+            clearInput
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      
+      <div class="form-group">
+        <label for="patientAge">Age</label>
+        <ion-item class="input-item">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          <ion-input
+            id="patientAge"
+            [(ngModel)]="patientAge"
+            placeholder="Enter patient's age"
+            type="number"
+            min="0"
+            max="150"
+            clearInput
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      
+      <div class="form-group">
+        <label for="patientSex">Sex</label>
+        <ion-item class="input-item">
+          <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+          <ion-select
+            id="patientSex"
+            [(ngModel)]="patientSex"
+            placeholder="Select patient's sex"
+          >
+            <ion-select-option value="Male">Male</ion-select-option>
+            <ion-select-option value="Female">Female</ion-select-option>
+            <ion-select-option value="Other">Other</ion-select-option>
+            <ion-select-option value="Prefer not to say">Prefer not to say</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+    </div>
+
+    
+    <div class="button-section">
+      <ion-button
+        expand="block"
+        class="save-button"
+        (click)="savePatientDetails()"
+        [disabled]="isLoading"
+      >
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        <span *ngIf="!isLoading">SAVE & CONTINUE</span>
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="back-button"
+        (click)="goBack()"
+        [disabled]="isLoading"
+      >
+        BACK
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
+

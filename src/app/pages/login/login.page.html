@@ -1,0 +1,108 @@
+<ion-content class="login-content" fullscreen>
+  <div class="login-container">
+    
+    <div class="background-animation">
+      <div class="floating-circle circle-1"></div>
+      <div class="floating-circle circle-2"></div>
+      <div class="floating-circle circle-3"></div>
+    </div>
+
+    
+    <div class="logo-section">
+      <div class="app-logo-container">
+        <div class="logo-ring">
+          <img src="assets/ALALA_logo.png" alt="ALALA logo" class="app-logo-image" />
+        </div>
+      </div>
+      <h1 class="app-name">ALALA</h1>
+      <p class="tagline">Memory Care Made Simple</p>
+    </div>
+
+    
+    <div class="login-form">
+      <div class="form-container">
+        <h2>Welcome Back</h2>
+        
+        <div class="input-group">
+          <ion-item class="custom-input">
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-input 
+              type="email" 
+              placeholder="Email" 
+              [(ngModel)]="email" 
+              name="email">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-input 
+              type="password" 
+              placeholder="Password" 
+              [(ngModel)]="password" 
+              name="password">
+            </ion-input>
+          </ion-item>
+        </div>
+
+        <div style="text-align:right;margin-top:-8px;margin-bottom:12px;">
+          <ion-button fill="clear" size="small" (click)="onForgotPassword()">Forgot Password?</ion-button>
+        </div>
+
+        <ion-button 
+          expand="block" 
+          class="login-btn" 
+          (click)="login()"
+          [disabled]="isLoading">
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading">Signing In...</span>
+          <ion-icon name="arrow-forward-outline" slot="end" *ngIf="!isLoading"></ion-icon>
+        </ion-button>
+
+        <div class="divider">
+          <span>or</span>
+        </div>
+
+        <div class="signup-section">
+          <p>New to ALALA?</p>
+          <ion-button 
+            fill="outline" 
+            expand="block" 
+            class="signup-btn" 
+            (click)="goToSignup()">
+            Create Account
+          </ion-button>
+        </div>
+
+        <div class="divider">
+          <span>or</span>
+        </div>
+
+        
+        <div class="login-alt">
+          <ion-item class="custom-input">
+            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+            <ion-input 
+              type="text" 
+              placeholder="Security Code"
+              [(ngModel)]="securityCode"
+              name="securityCode">
+            </ion-input>
+          </ion-item>
+
+          <ion-button expand="block" class="login-btn" (click)="loginWithSecurityCode()" [disabled]="isLoading || !securityCode">
+            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            <span *ngIf="!isLoading">Sign In with Security Code</span>
+            <ion-icon name="log-in-outline" slot="end" *ngIf="!isLoading"></ion-icon>
+          </ion-button>
+
+          <ion-button expand="block" fill="outline" class="login-btn" (click)="scanQRCode()" [disabled]="isLoading">
+            <ion-icon name="scan-outline" slot="start"></ion-icon>
+            Scan QR Code
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
