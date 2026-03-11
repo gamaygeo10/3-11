@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
-import { ToastController, AlertController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 
 
 @Component({
@@ -60,8 +60,7 @@ export class ProgressPage implements OnInit {
     private firebaseService: FirebaseService,
     private toastController: ToastController,
     private cdr: ChangeDetectorRef,
-    private router: Router,
-    private alertCtrl: AlertController
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -96,107 +95,11 @@ export class ProgressPage implements OnInit {
     this.isPatientMode = savedMode === 'true';
   }
 
-  async onPatientModeToggle() {
-    if (!this.isPatientMode) {
-      // Trying to enter patient mode
-      await this.enablePatientMode();
-      return;
-    }
-    // Already in patient mode - prompt to exit
-    await this.promptExitPatientMode();
-  }
-
-  private async enablePatientMode() {
-    try {
-      const currentUser = this.firebaseService.getCurrentUser();
-      if (!currentUser) {
-        this.router.navigate(['/settings']).catch(err => {
-          console.error('Navigation to settings failed from progress page:', err);
-        });
-        return;
-      }
-
-      const savedPin = await this.firebaseService.getCaregiverPassword(currentUser.uid);
-
-      if (!savedPin) {
-        const alert = await this.alertCtrl.create({
-          header: 'Set Caregiver Password',
-          message:
-            'To use Patient Mode, please create a caregiver password first. You will need it to exit Patient Mode.',
-          buttons: [
-            { text: 'Cancel', role: 'cancel' },
-            {
-              text: 'Go to Settings',
-              handler: () => this.router.navigate(['/settings'])
-            }
-          ],
-          backdropDismiss: false
-        });
-        await alert.present();
-        return;
-      }
-
-      // Password exists - show confirmation
-      const confirm = await this.alertCtrl.create({
-        header: 'Enter Patient Mode?',
-        message: 'Are you sure you want to switch to Patient Mode? You will need the caregiver password to exit.',
-        buttons: [
-          { text: 'Cancel', role: 'cancel' },
-          {
-            text: 'Yes',
-            handler: () => {
-              // Set pending flag and navigate to home
-              try { localStorage.setItem('pendingPatientMode', 'true'); } catch {}
-              this.router.navigate(['/home']).catch(err => {
-                console.error('Navigation to home failed from progress page:', err);
-              });
-            }
-          }
-        ],
-        backdropDismiss: false
-      });
-      await confirm.present();
-    } catch (err) {
-      console.error('Error enabling patient mode from progress page:', err);
-    }
-  }
-
-  private async promptExitPatientMode() {
-    const currentUser = this.firebaseService.getCurrentUser();
-    if (!currentUser) {
-      return;
-    }
-
-    const alert = await this.alertCtrl.create({
-      header: 'Exit Patient Mode',
-      message: 'Enter caregiver password to switch back to Standard mode.',
-      inputs: [
-        {
-          name: 'pin',
-          type: 'password',
-          placeholder: 'Enter password',
-          attributes: { maxlength: 32 }
-        }
-      ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Unlock',
-          handler: async (data) => {
-            const savedPin = await this.firebaseService.getCaregiverPassword(currentUser.uid);
-            if (data.pin === savedPin) {
-              this.isPatientMode = false;
-              localStorage.setItem('patientMode', 'false');
-              window.dispatchEvent(new CustomEvent('patientMode-changed', { detail: false }));
-              return true;
-            }
-            return false;
-          }
-        }
-      ],
-      backdropDismiss: false
+  onPatientModeToggle() {
+    window.dispatchEvent(new CustomEvent('caregiver-toggle'));
+    this.router.navigate(['/home']).catch(err => {
+      console.error('Navigation to home failed from progress page:', err);
     });
-    await alert.present();
   }
 
   async loadChartJS() {
@@ -232,7 +135,8 @@ export class ProgressPage implements OnInit {
       this.isLoading = true;
 
       
-      
+      // fetch sessions from firebase
+      // from firebase.service.ts
       let sessions: any[] = [];
       try {
         sessions = await this.firebaseService.getUserGameSessions();
@@ -246,8 +150,8 @@ export class ProgressPage implements OnInit {
         sessions = this.firebaseService.getCachedData('gameSessions', []);
         if (!sessions || sessions.length === 0) {
           
-          const uid = localStorage.getItem('userId');
-          const localKey = uid ? `gameSessions:${uid}` : 'gameSessions';
+          const pid = localStorage.getItem('selectedPatientId') || localStorage.getItem('userId');
+          const localKey = pid ? `gameSessions_${pid}` : 'gameSessions';
           const raw = localStorage.getItem(localKey) || localStorage.getItem('gameSessions') || '[]';
           try { sessions = JSON.parse(raw); } catch { sessions = []; }
           this.dataSource = sessions && sessions.length > 0 ? 'Local Storage' : 'No Data';
@@ -352,6 +256,7 @@ export class ProgressPage implements OnInit {
     }
   }
 
+//called from firebase.service.ts
   async updateFirebaseStats(sessions: any[]) {
     try {
       console.log(' updateFirebaseStats called with:', {
@@ -599,8 +504,8 @@ export class ProgressPage implements OnInit {
         this.isFirebaseConnected = false;
         sessions = this.firebaseService.getCachedData('gameSessions', []);
         if ((!sessions || sessions.length === 0)) {
-          const uid = localStorage.getItem('userId');
-          const localKey = uid ? `gameSessions:${uid}` : 'gameSessions';
+          const pid = localStorage.getItem('selectedPatientId') || localStorage.getItem('userId');
+          const localKey = pid ? `gameSessions_${pid}` : 'gameSessions';
           const raw = localStorage.getItem(localKey) || '[]';
           try { sessions = JSON.parse(raw); } catch { sessions = []; }
         }
@@ -938,7 +843,9 @@ export class ProgressPage implements OnInit {
     
     try {
       
+      const pid = localStorage.getItem('selectedPatientId') || localStorage.getItem('userId');
       localStorage.removeItem('gameSessions');
+      if (pid) localStorage.removeItem(`gameSessions_${pid}`);
       await this.loadProgressData();
       this.generateInsights();
       if (this.chart) {
@@ -1040,8 +947,8 @@ export class ProgressPage implements OnInit {
     await firebaseService.saveGameSession(sessionWithTimestamp);
 
     
-    const uid = localStorage.getItem('userId');
-    const key = uid ? `gameSessions:${uid}` : 'gameSessions';
+    const pid = localStorage.getItem('selectedPatientId') || localStorage.getItem('userId');
+    const key = pid ? `gameSessions_${pid}` : 'gameSessions';
     const sessions = JSON.parse(localStorage.getItem(key) || '[]');
     sessions.push(sessionWithTimestamp);
     localStorage.setItem(key, JSON.stringify(sessions));
@@ -1139,8 +1046,8 @@ export class ProgressPage implements OnInit {
         this.isFirebaseConnected = false;
         allSessions = this.firebaseService.getCachedData('gameSessions', []);
         if ((!allSessions || allSessions.length === 0)) {
-          const uid = localStorage.getItem('userId');
-          const localKey = uid ? `gameSessions:${uid}` : 'gameSessions';
+          const pid = localStorage.getItem('selectedPatientId') || localStorage.getItem('userId');
+          const localKey = pid ? `gameSessions_${pid}` : 'gameSessions';
           const raw = localStorage.getItem(localKey) || '[]';
           try { allSessions = JSON.parse(raw); } catch { allSessions = []; }
         }
@@ -1187,6 +1094,7 @@ export class ProgressPage implements OnInit {
     
   }
 
+  //called from firebase.service.ts
   private subscribeToGameSessions() {
     try {
       this.firebaseService.subscribeToGameSessions((sessions) => {

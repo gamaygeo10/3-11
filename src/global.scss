@@ -6,6 +6,12 @@ ion-content {
   --padding-end: 0px;
   --padding-top: 0px;
   --padding-bottom: 0px;
+  --overflow: scroll;
+}
+
+ion-content.lavender-content {
+  --overflow: scroll !important;
+  --background: linear-gradient(135deg, #faf8ff 0%, #f3f0ff 50%, #ede8ff 100%);
 }
 
 

@@ -128,8 +128,7 @@ interface TrustedContact {
   providedIn: 'root'
 })
 export class FirebaseService {
-  // ─── Service wiring & identity helpers ──────────────────────────────────────
-  // Firebase SDK injection + helper methods to resolve caregiver/patient context and sanitize data for Firestore.
+ 
   private auth = inject(Auth);
   private firestore = inject(Firestore);
   private storage = inject(Storage);
@@ -139,18 +138,14 @@ export class FirebaseService {
   constructor() {
   }
 
-  /** Caregiver uid (logged-in user). For paths: caregiver/{caregiverId}/patients/... */
   private getCaregiverId(): string | null {
     return this.getCurrentUser()?.uid ?? null;
   }
 
-  /** Patient uid. Defaults to current user; pass override when viewing another patient. */
   private getPatientId(override?: string): string | null {
     if (override) return override;
-    // Check for selected patient in localStorage
     const selectedPatientId = localStorage.getItem('selectedPatientId');
     if (selectedPatientId) return selectedPatientId;
-    // Default to current user
     return this.getCurrentUser()?.uid ?? null;
   }
 
@@ -160,7 +155,7 @@ export class FirebaseService {
     const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
     return userCredential.user;
   }
-
+//create caregiver account
   async signup(
     email: string,
     password: string,
@@ -289,7 +284,7 @@ export class FirebaseService {
     } catch {}
   }
 
-  
+  //create patient
   async savePatientDetails(details: { name: string; age?: number; sex?: string; relationship?: string; notes?: string; emergencyContact?: string }, patientId?: string): Promise<void> {
     const cgId = this.getCaregiverId();
     const pid = this.getPatientId(patientId);
@@ -338,7 +333,8 @@ export class FirebaseService {
     const cardId = `card_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
     const data: any = this.sanitizeForFirestore({
       id: cardId,
-      userId: user.uid,
+      caregiverId: cgId,
+      patientId: pid,
       createdAt: Date.now(),
       ...card
     });
@@ -701,7 +697,8 @@ export class FirebaseService {
 
     
     try {
-      const localKey = `gameSessions_${user.uid}`;
+      const pid = this.getPatientId();
+      const localKey = `gameSessions_${pid || user.uid}`;
       const localSessions = JSON.parse(localStorage.getItem(localKey) || '[]');
       localSessions.push(gameSession);
       localStorage.setItem(localKey, JSON.stringify(localSessions));
@@ -877,24 +874,24 @@ export class FirebaseService {
       throw new Error('User not authenticated');
     }
 
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required; video is only stored under patient.');
+
     try {
-      
-      
       const cloudinaryResult = await this.cloudinaryService.uploadVideo(file, {
         title: title || file.name || 'Untitled Video',
-        folder: `alala/users/${user.uid}/videos`,
-        userId: user.uid,
-        description: `Video uploaded by ${user.uid}`
+        folder: `alala/caregiver/${cgId}/patients/${pid}/videos`,
+        userId: `${cgId}_${pid}`,
+        description: `Video uploaded for patient ${pid}`
       });
-      
-      
       
       const id = `vid_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
       
-      
       const metadata = {
         id,
-        userId: user.uid,
+        caregiverId: cgId,
+        patientId: pid,
         cloudinaryPublicId: cloudinaryResult.publicId,
         videoUrl: cloudinaryResult.secureUrl,
         thumbnailUrl: cloudinaryResult.secureUrl, 
@@ -904,10 +901,6 @@ export class FirebaseService {
         width: cloudinaryResult.width,
         height: cloudinaryResult.height
       };
-      
-      const cgId = this.getCaregiverId();
-      const pid = this.getPatientId();
-      if (!cgId || !pid) throw new Error('Caregiver/patient context required; video is only stored under patient.');
       await runInInjectionContext(this.injector, async () => {
         const patientVideoRef = doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'videos', id);
         await setDoc(patientVideoRef, this.sanitizeForFirestore(metadata), { merge: true });
@@ -941,27 +934,29 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required; video is only stored under patient.');
+
     try {
-      console.log(' uploadVideoToCloudinaryFixed - Current user:', user.uid);
+      console.log(' uploadVideoToCloudinaryFixed - Caregiver:', cgId, 'Patient:', pid);
       console.log(' uploadVideoToCloudinaryFixed - Starting Cloudinary upload...');
-      
       
       const cloudinaryResult = await this.cloudinaryService.uploadVideo(file, {
         title: title || file.name || 'Untitled Video',
-        folder: `alala/users/${user.uid}/videos`,
-        userId: user.uid,
-        description: `Video uploaded by ${user.uid}`
+        folder: `alala/caregiver/${cgId}/patients/${pid}/videos`,
+        userId: `${cgId}_${pid}`,
+        description: `Video uploaded for patient ${pid}`
       });
       
       console.log(' uploadVideoToCloudinaryFixed - Cloudinary upload successful:', cloudinaryResult);
       
-      
       const id = `vid_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-      
       
       const metadata = {
         id,
-        userId: user.uid,
+        caregiverId: cgId,
+        patientId: pid,
         cloudinaryPublicId: cloudinaryResult.publicId,
         videoUrl: cloudinaryResult.secureUrl,
         thumbnailUrl: cloudinaryResult.secureUrl, 
@@ -973,10 +968,6 @@ export class FirebaseService {
       };
       
       console.log(' uploadVideoToCloudinaryFixed - Saving metadata to Firestore subcollection:', metadata);
-      
-      const cgId = this.getCaregiverId();
-      const pid = this.getPatientId();
-      if (!cgId || !pid) throw new Error('Caregiver/patient context required; video is only stored under patient.');
 
       try {
         await runInInjectionContext(this.injector, async () => {
@@ -1157,11 +1148,14 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
     try {
-      console.log(' Getting videos from Cloudinary for user:', user.uid);
+      console.log(' Getting videos from Cloudinary for caregiver:', cgId, 'patient:', pid);
       
-      
-      const videos = await this.cloudinaryService.getUserVideos(user.uid);
+      const videos = await this.cloudinaryService.getUserVideos(`${cgId}_${pid}`);
       
       console.log(' Retrieved videos from Cloudinary:', videos.length);
       return videos;
@@ -1181,8 +1175,9 @@ export class FirebaseService {
       return () => {}; 
     }
 
-    console.log(' subscribeToCloudinaryVideos - Setting up Firestore subscription for user:', user.uid);
-    
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    console.log(' subscribeToCloudinaryVideos - Setting up Firestore subscription for caregiver:', cgId, 'patient:', pid);
     
     return this.subscribeToVideos(onChange);
   }
@@ -1203,7 +1198,7 @@ export class FirebaseService {
       const firestoreVideos = await this.debugGetVideos();
       let syncResult: { toAdd: any[]; toUpdate: any[]; toDelete: any[]; };
       try {
-        syncResult = await this.cloudinaryService.syncVideosWithFirestore(user.uid, firestoreVideos);
+        syncResult = await this.cloudinaryService.syncVideosWithFirestore(`${cgId}_${pid}`, firestoreVideos);
       } catch (error) {
         console.warn('️ Cloudinary sync failed, operating in Firestore-only mode:', error);
         syncResult = { toAdd: [], toUpdate: [], toDelete: [] };
@@ -1218,7 +1213,8 @@ export class FirebaseService {
           const id = `vid_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
           const metadata = {
             id,
-            userId: user.uid,
+            caregiverId: cgId,
+            patientId: pid,
             cloudinaryPublicId: videoToAdd.cloudinaryPublicId,
             videoUrl: videoToAdd.videoUrl,
             thumbnailUrl: videoToAdd.thumbnailUrl,
@@ -1295,7 +1291,11 @@ export class FirebaseService {
       throw new Error('User not authenticated');
     }
 
-    console.log(' uploadUserVideo - Starting upload for user:', user.uid);
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    console.log(' uploadUserVideo - Starting upload for caregiver:', cgId, 'patient:', pid);
     console.log(' uploadUserVideo - File info:', { 
       size: file.size, 
       type: file.type, 
@@ -1304,9 +1304,9 @@ export class FirebaseService {
 
     const id = `vid_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
     const path = `videos/${id}.mp4`;
-    const storageRef = ref(this.storage, `users/${user.uid}/${path}`);
+    const storageRef = ref(this.storage, `caregiver/${cgId}/patients/${pid}/${path}`);
     
-    console.log(' uploadUserVideo - Storage path:', `users/${user.uid}/${path}`);
+    console.log(' uploadUserVideo - Storage path:', `caregiver/${cgId}/patients/${pid}/${path}`);
     
     try {
       console.log(' uploadUserVideo - Uploading to Firebase Storage...');
@@ -1318,7 +1318,8 @@ export class FirebaseService {
 
       const meta = { 
         id, 
-        userId: user.uid, 
+        caregiverId: cgId,
+        patientId: pid, 
         storagePath: path, 
         downloadURL: url, 
         label: label || null, 
@@ -1326,9 +1327,6 @@ export class FirebaseService {
       } as any;
       
       console.log(' uploadUserVideo - Saving metadata to Firestore:', meta);
-      const cgId = this.getCaregiverId();
-      const pid = this.getPatientId();
-      if (!cgId || !pid) throw new Error('User not authenticated');
       await setDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'videos', id), this.sanitizeForFirestore(meta));
       console.log(' uploadUserVideo - Metadata saved successfully');
       
@@ -1531,7 +1529,9 @@ export class FirebaseService {
       }
       
       
-      const cloudinaryVideos = await this.cloudinaryService.getUserVideos(user.uid);
+      const cgId = this.getCaregiverId();
+      const pid = this.getPatientId();
+      const cloudinaryVideos = await this.cloudinaryService.getUserVideos(`${cgId}_${pid}`);
       console.log(' Cloudinary videos:', cloudinaryVideos.length);
       
       
@@ -1550,8 +1550,6 @@ export class FirebaseService {
         return;
       }
       
-      const cgId = this.getCaregiverId();
-      const pid = this.getPatientId();
       if (!cgId || !pid) {
         console.warn(' No caregiver/patient context for deletion sync');
         return;
@@ -1765,7 +1763,7 @@ export class FirebaseService {
     
     if (meta?.storagePath) {
       try { 
-        await deleteObject(ref(this.storage, `users/${user.uid}/${meta.storagePath}`)); 
+        await deleteObject(ref(this.storage, `caregiver/${cgId}/patients/${pid}/${meta.storagePath}`)); 
         console.log(' Video file deleted from Firebase Storage');
       } catch (error) {
         console.warn('️ Failed to delete video file from Storage:', error);
@@ -1807,7 +1805,8 @@ export class FirebaseService {
     const id = input.id || `vm_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
     const data = this.sanitizeForFirestore({
       id,
-      userId: user.uid,
+      caregiverId: cgId,
+      patientId: pid,
       title,
       titleLower: title.toLowerCase(),
       videoURL,
@@ -2255,28 +2254,34 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
     const categoryId = `cat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const category: UserCategory = {
+    const category = {
       id: categoryId,
-      userId: user.uid,
+      caregiverId: cgId,
+      patientId: pid,
       createdAt: Date.now(),
       ...categoryData
     };
 
-    await setDoc(doc(this.firestore, 'userCategories', categoryId), category);
+    await setDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', categoryId), category);
     return categoryId;
   }
 
   
-  async getUserCategories(userId?: string): Promise<UserCategory[]> {
+  async getUserCategories(patientId?: string): Promise<UserCategory[]> {
     const user = this.getCurrentUser();
-    const targetUserId = userId || user?.uid;
+    if (!user) throw new Error('User not authenticated');
 
-    if (!targetUserId) throw new Error('User not authenticated');
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId(patientId);
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
 
     const q = query(
-      collection(this.firestore, 'userCategories'),
-      where('userId', '==', targetUserId),
+      collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories'),
       orderBy('createdAt', 'desc')
     );
 
@@ -2289,14 +2294,16 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    
-    const categoryDoc = await getDoc(doc(this.firestore, 'userCategories', categoryId));
-    const categoryData = categoryDoc.data() as UserCategory;
-    if (!categoryDoc.exists() || categoryData?.userId !== user.uid) {
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const categoryDoc = await getDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', categoryId));
+    if (!categoryDoc.exists()) {
       throw new Error('Category not found or access denied');
     }
 
-    await updateDoc(doc(this.firestore, 'userCategories', categoryId), updates);
+    await updateDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', categoryId), updates);
   }
 
   
@@ -2304,29 +2311,28 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    
-    const categoryDoc = await getDoc(doc(this.firestore, 'userCategories', categoryId));
-    const categoryData = categoryDoc.data() as UserCategory;
-    if (!categoryDoc.exists() || categoryData?.userId !== user.uid) {
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const categoryDoc = await getDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', categoryId));
+    if (!categoryDoc.exists()) {
       throw new Error('Category not found or access denied');
     }
 
-    
     const cardsQuery = query(
-      collection(this.firestore, 'userCards'),
-      where('categoryId', '==', categoryId),
-      where('userId', '==', user.uid)
+      collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards'),
+      where('categoryId', '==', categoryId)
     );
 
     const cardsSnapshot = await getDocs(cardsQuery);
     const batch = writeBatch(this.firestore);
 
-    cardsSnapshot.docs.forEach(doc => {
-      batch.delete(doc.ref);
+    cardsSnapshot.docs.forEach(d => {
+      batch.delete(d.ref);
     });
 
-    
-    batch.delete(doc(this.firestore, 'userCategories', categoryId));
+    batch.delete(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', categoryId));
 
     await batch.commit();
   }
@@ -2338,36 +2344,40 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    
-    const categoryDoc = await getDoc(doc(this.firestore, 'userCategories', cardData.categoryId));
-    const categoryData = categoryDoc.data() as UserCategory;
-    if (!categoryDoc.exists() || categoryData?.userId !== user.uid) {
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const categoryDoc = await getDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories', cardData.categoryId));
+    if (!categoryDoc.exists()) {
       throw new Error('Category not found or access denied');
     }
 
     const cardId = `card_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const card: UserCard = {
+    const card = {
       id: cardId,
-      userId: user.uid,
+      caregiverId: cgId,
+      patientId: pid,
       createdAt: Date.now(),
       ...cardData
     };
 
-    await setDoc(doc(this.firestore, 'userCards', cardId), card);
+    await setDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards', cardId), card);
     return cardId;
   }
 
   
-  async getUserCards(categoryId: string, userId?: string): Promise<UserCard[]> {
+  async getUserCards(categoryId: string, patientId?: string): Promise<UserCard[]> {
     const user = this.getCurrentUser();
-    const targetUserId = userId || user?.uid;
+    if (!user) throw new Error('User not authenticated');
 
-    if (!targetUserId) throw new Error('User not authenticated');
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId(patientId);
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
 
     const q = query(
-      collection(this.firestore, 'userCards'),
+      collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards'),
       where('categoryId', '==', categoryId),
-      where('userId', '==', targetUserId),
       orderBy('createdAt', 'desc')
     );
 
@@ -2376,15 +2386,16 @@ export class FirebaseService {
   }
 
   
-  async getAllUserCards(userId?: string): Promise<UserCard[]> {
+  async getAllUserCards(patientId?: string): Promise<UserCard[]> {
     const user = this.getCurrentUser();
-    const targetUserId = userId || user?.uid;
+    if (!user) throw new Error('User not authenticated');
 
-    if (!targetUserId) throw new Error('User not authenticated');
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId(patientId);
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
 
     const q = query(
-      collection(this.firestore, 'userCards'),
-      where('userId', '==', targetUserId),
+      collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards'),
       orderBy('createdAt', 'desc'),
       limit(500) 
     );
@@ -2398,14 +2409,16 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    
-    const cardDoc = await getDoc(doc(this.firestore, 'userCards', cardId));
-    const cardData = cardDoc.data() as UserCard;
-    if (!cardDoc.exists() || cardData?.userId !== user.uid) {
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const cardDoc = await getDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards', cardId));
+    if (!cardDoc.exists()) {
       throw new Error('Card not found or access denied');
     }
 
-    await updateDoc(doc(this.firestore, 'userCards', cardId), updates);
+    await updateDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards', cardId), updates);
   }
 
   
@@ -2413,14 +2426,16 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    
-    const cardDoc = await getDoc(doc(this.firestore, 'userCards', cardId));
-    const cardData = cardDoc.data() as UserCard;
-    if (!cardDoc.exists() || cardData?.userId !== user.uid) {
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const cardDoc = await getDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards', cardId));
+    if (!cardDoc.exists()) {
       throw new Error('Card not found or access denied');
     }
 
-    await deleteDoc(doc(this.firestore, 'userCards', cardId));
+    await deleteDoc(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards', cardId));
   }
 
   
@@ -2430,7 +2445,11 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const storageRef = ref(this.storage, `users/${user.uid}/${path}`);
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const storageRef = ref(this.storage, `caregiver/${cgId}/patients/${pid}/${path}`);
     const snapshot = await uploadBytes(storageRef, file);
     return await getDownloadURL(snapshot.ref);
   }
@@ -2440,7 +2459,11 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const storageRef = ref(this.storage, `users/${user.uid}/${path}`);
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const storageRef = ref(this.storage, `caregiver/${cgId}/patients/${pid}/${path}`);
     await deleteObject(storageRef);
   }
 
@@ -2451,10 +2474,13 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    console.log(' Starting data migration to Firebase...');
+    const cgId = this.getCaregiverId();
+    const pid = this.getPatientId();
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
 
-    
-    const userSpecificKey = `alala_custom_categories_v1_${user.uid}`;
+    console.log(' Starting data migration to Firebase for caregiver:', cgId, 'patient:', pid);
+
+    const userSpecificKey = `alala_custom_categories_v1_${pid}`;
     const localCategories = localStorage.getItem(userSpecificKey);
     if (localCategories) {
       const categories = JSON.parse(localCategories);
@@ -2472,8 +2498,7 @@ export class FirebaseService {
       }
     }
 
-    
-    const localSessions = localStorage.getItem('gameSessions');
+    const localSessions = localStorage.getItem(`gameSessions_${pid}`) || localStorage.getItem('gameSessions');
     if (localSessions) {
       const sessions = JSON.parse(localSessions);
       for (const session of sessions) {
@@ -2494,27 +2519,17 @@ export class FirebaseService {
     const user = this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    const batch = writeBatch(this.firestore);
-
-    
-    const categoriesQuery = query(
-      collection(this.firestore, 'userCategories'),
-      where('userId', '==', user.uid)
-    );
-    const categoriesSnapshot = await getDocs(categoriesQuery);
-    categoriesSnapshot.docs.forEach(doc => batch.delete(doc.ref));
-
-    
-    const cardsQuery = query(
-      collection(this.firestore, 'userCards'),
-      where('userId', '==', user.uid)
-    );
-    const cardsSnapshot = await getDocs(cardsQuery);
-    cardsSnapshot.docs.forEach(doc => batch.delete(doc.ref));
-
     const cgId = this.getCaregiverId();
     const pid = this.getPatientId();
-    if (!cgId || !pid) throw new Error('User not authenticated');
+    if (!cgId || !pid) throw new Error('Caregiver/patient context required');
+
+    const batch = writeBatch(this.firestore);
+
+    const categoriesSnapshot = await getDocs(collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCategories'));
+    categoriesSnapshot.docs.forEach(d => batch.delete(d.ref));
+
+    const cardsSnapshot = await getDocs(collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'userCards'));
+    cardsSnapshot.docs.forEach(d => batch.delete(d.ref));
     
     const acts = await getDocs(collection(this.firestore, 'caregiver', cgId, 'patients', pid, 'activities'));
     for (const a of acts.docs) {
@@ -2535,11 +2550,8 @@ export class FirebaseService {
     }
 
     
-    batch.delete(doc(this.firestore, 'caregiver', user.uid, 'patients', user.uid, 'userProgress', 'stats'));
-    batch.delete(doc(this.firestore, 'caregiver', user.uid, 'patients', user.uid, 'patientInfo', 'details'));
-
-    
-    batch.delete(doc(this.firestore, 'caregiver', user.uid));
+    batch.delete(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'userProgress', 'stats'));
+    batch.delete(doc(this.firestore, 'caregiver', cgId, 'patients', pid, 'patientInfo', 'details'));
 
     await batch.commit();
   }
@@ -2841,5 +2853,34 @@ export class FirebaseService {
       
       onChange(patients);
     });
+  }
+
+  /** Delete a patient and all their data */
+  async deletePatient(patientId: string): Promise<void> {
+    const cgId = this.getCaregiverId();
+    if (!cgId) throw new Error('User not authenticated');
+
+    try {
+      // Delete patientInfo/details document
+      const patientInfoRef = doc(this.firestore, 'caregiver', cgId, 'patients', patientId, 'patientInfo', 'details');
+      await deleteDoc(patientInfoRef);
+
+      // Delete userProgress document if exists
+      const userProgressRef = doc(this.firestore, 'caregiver', cgId, 'patients', patientId, 'userProgress', 'progress');
+      await deleteDoc(userProgressRef).catch(() => {});
+
+      // Delete the main patient document
+      const patientRef = doc(this.firestore, 'caregiver', cgId, 'patients', patientId);
+      await deleteDoc(patientRef);
+
+      // Clear local storage if this was the selected patient
+      const selectedPatientId = localStorage.getItem('selectedPatientId');
+      if (selectedPatientId === patientId) {
+        localStorage.removeItem('selectedPatientId');
+      }
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      throw error;
+    }
   }
 }

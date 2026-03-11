@@ -338,6 +338,17 @@
         <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
       </div>
       
+      <div class="option-item" (click)="deletePatient()">
+        <div class="option-icon danger">
+          <ion-icon name="person-remove-outline"></ion-icon>
+        </div>
+        <div class="option-content">
+          <div class="option-title">Delete Patient</div>
+          <div class="option-subtitle">Permanently remove this patient</div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+      </div>
+      
       <div class="option-item" (click)="logout()">
         <div class="option-icon danger">
           <ion-icon name="log-out-outline"></ion-icon>
@@ -352,57 +363,3 @@
 
   </div>
 </ion-content>
-
-
-<div class="caregiver-bottom-nav" *ngIf="!isPatientMode">
-  <div class="nav-container">
-    
-    <div class="nav-item" routerLink="/home">
-      <div class="nav-icon home-icon">
-        <ion-icon name="home"></ion-icon>
-      </div>
-      <span class="nav-label">Home</span>
-    </div>
-    
-    <div class="nav-item" routerLink="/progress">
-      <div class="nav-icon progress-icon">
-        <ion-icon name="trending-up-outline"></ion-icon>
-      </div>
-      <span class="nav-label">Progress</span>
-    </div>
-    
-    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
-      <div class="nav-icon caregiver-icon">
-        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
-      </div>
-      <span class="nav-label">Caregiver</span>
-    </div>
-    
-    <div class="nav-item" routerLink="/profile">
-      <div class="nav-icon">
-        <ion-icon name="person-outline"></ion-icon>
-      </div>
-      <span class="nav-label">Profile</span>
-    </div>
-
-    <div class="nav-item" routerLink="/patients-dashboard">
-      <div class="nav-icon">
-        <ion-icon name="people-outline"></ion-icon>
-      </div>
-      <span class="nav-label">Patients</span>
-    </div>
-
-  </div>
-</div>
-
-
-<div class="patient-bottom-nav" *ngIf="isPatientMode">
-  <div class="nav-container">
-    <div class="nav-item caregiver-mode" (click)="onPatientModeToggle()">
-      <div class="nav-icon caregiver-icon">
-        <ion-icon [name]="isPatientMode ? 'lock-closed' : 'lock-open'"></ion-icon>
-      </div>
-      <span class="nav-label">Caregiver</span>
-    </div>
-  </div>
-</div>

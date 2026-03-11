@@ -845,4 +845,55 @@ export class SettingsPage implements OnInit {
     this.toast('Login history feature coming soon!', 'primary');
   }
 
+  async deletePatient() {
+    const selectedPatientId = localStorage.getItem('selectedPatientId');
+    if (!selectedPatientId) {
+      await this.toast('No patient selected', 'warning');
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Patient',
+      message: 'Are you sure you want to delete this patient? This action cannot be undone.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.confirmDeletePatient(selectedPatientId);
+          }
+        }
+      ],
+      backdropDismiss: false
+    });
+    await alert.present();
+  }
+
+  private async confirmDeletePatient(patientId: string) {
+    const confirmAlert = await this.alertCtrl.create({
+      header: 'Are you sure?',
+      message: 'All patient data including progress, memories, and settings will be permanently deleted.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Yes, Delete',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await this.firebaseService.deletePatient(patientId);
+              await this.toast('Patient deleted successfully', 'success');
+              this.router.navigate(['/patients-dashboard']);
+            } catch (error) {
+              console.error('Error deleting patient:', error);
+              await this.toast('Failed to delete patient. Please try again.', 'danger');
+            }
+          }
+        }
+      ],
+      backdropDismiss: false
+    });
+    await confirmAlert.present();
+  }
+
 }

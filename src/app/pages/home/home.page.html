@@ -1,4 +1,4 @@
-<ion-content class="lavender-content" [scrollY]="true" fullscreen>
+<ion-content class="lavender-content" [scrollY]="true" [fullscreen]="false" [forceOverscroll]="true">
 
   <div class="lavender-container">
     
@@ -34,34 +34,34 @@
       </div>
       
       <div class="progress-content" *ngIf="isProgressExpanded">
-        <div class="stats-container">
-          <div class="stat-card accuracy-card">
-            <div class="stat-icon">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <div class="stats-container" style="display: flex; flex-direction: row; gap: 8px; margin-bottom: 16px;">
+          <div class="stat-card accuracy-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 100px; padding: 12px 8px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 14px; border: 2px solid rgba(121, 68, 148, 0.1);">
+            <div class="stat-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <ion-icon name="checkmark-circle-outline" style="font-size: 18px; color: white;"></ion-icon>
             </div>
-            <div class="stat-content">
-              <span class="stat-number">{{ todayStats.accuracy }}%</span>
-              <span class="stat-label">Accuracy</span>
-            </div>
-          </div>
-          
-          <div class="stat-card cards-card">
-            <div class="stat-icon">
-              <ion-icon name="library-outline"></ion-icon>
-            </div>
-            <div class="stat-content">
-              <span class="stat-number">{{ todayStats.cardsToday }}</span>
-              <span class="stat-label">Cards</span>
+            <div class="stat-content" style="text-align: center;">
+              <span class="stat-number" style="display: block; font-size: 16px; font-weight: 700; color: #2d1b69;">{{ todayStats.accuracy }}%</span>
+              <span class="stat-label" style="display: block; font-size: 11px; color: #6b7280; font-weight: 500;">Accuracy</span>
             </div>
           </div>
           
-          <div class="stat-card time-card">
-            <div class="stat-icon">
-              <ion-icon name="time-outline"></ion-icon>
+          <div class="stat-card cards-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 100px; padding: 12px 8px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 14px; border: 2px solid rgba(121, 68, 148, 0.1);">
+            <div class="stat-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: linear-gradient(135deg, #794494, #9b6db0); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <ion-icon name="library-outline" style="font-size: 18px; color: white;"></ion-icon>
             </div>
-            <div class="stat-content">
-              <span class="stat-number">{{ todayStats.avgTime }}s</span>
-              <span class="stat-label">Avg Time</span>
+            <div class="stat-content" style="text-align: center;">
+              <span class="stat-number" style="display: block; font-size: 16px; font-weight: 700; color: #2d1b69;">{{ todayStats.cardsToday }}</span>
+              <span class="stat-label" style="display: block; font-size: 11px; color: #6b7280; font-weight: 500;">Cards</span>
+            </div>
+          </div>
+          
+          <div class="stat-card time-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 100px; padding: 12px 8px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 14px; border: 2px solid rgba(121, 68, 148, 0.1);">
+            <div class="stat-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <ion-icon name="time-outline" style="font-size: 18px; color: white;"></ion-icon>
+            </div>
+            <div class="stat-content" style="text-align: center;">
+              <span class="stat-number" style="display: block; font-size: 16px; font-weight: 700; color: #2d1b69;">{{ todayStats.avgTime }}s</span>
+              <span class="stat-label" style="display: block; font-size: 11px; color: #6b7280; font-weight: 500;">Avg Time</span>
             </div>
           </div>
         </div>
